@@ -3,14 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Velaris AI</title>
+<title>Velaris AI 2.1 v2</title>
+
+<link rel="manifest" href="manifest.json">
 
 <style>
 :root{
 --bg:#000;
 --panel:#1E1E1E;
+--input:#2C2C2E;
 --text:#fff;
---sub:#8E8E93;
+--muted:#8E8E93;
 --accent:#7C3AED;
 }
 
@@ -22,80 +25,70 @@ font-family:-apple-system,BlinkMacSystemFont,sans-serif;
 display:flex;
 flex-direction:column;
 height:100vh;
-overflow:hidden;
 }
 
 header{
-position:relative;
-padding:20px;
-text-align:center;
-font-weight:600;
-font-size:22px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px;
 }
 
-.orbit-wrap{
+.logo{
 position:relative;
-display:inline-block;
+font-size:28px;
+font-weight:600;
 }
 
 .orbit{
 position:absolute;
-top:50%;
-left:50%;
-width:140px;
-height:140px;
-border-radius:50%;
+top:-10px;
+left:-15px;
+width:120px;
+height:60px;
 border:1px solid var(--accent);
-transform:translate(-50%,-50%);
-box-shadow:0 0 15px var(--accent);
+border-radius:50%;
+animation:spin 6s linear infinite;
 }
+
+.orbit.off{animation:none}
 
 .planet{
-position:absolute;
-width:12px;
-height:12px;
+width:8px;
+height:8px;
 background:var(--accent);
 border-radius:50%;
-top:-6px;
+position:absolute;
+top:-4px;
 left:50%;
-transform:translateX(-50%);
-box-shadow:0 0 12px var(--accent);
-}
-
-.spin{
-animation:spin 4s linear infinite;
 }
 
 @keyframes spin{
-from{transform:rotate(0deg);}
-to{transform:rotate(360deg);}
+from{transform:rotate(0deg)}
+to{transform:rotate(360deg)}
 }
 
-.menu-btn{
-position:absolute;
-right:20px;
-top:20px;
+.menu{
 cursor:pointer;
 font-size:22px;
 }
 
-.menu{
+.dropdown{
 position:absolute;
-right:20px;
 top:60px;
-background:#111;
-border-radius:12px;
+right:15px;
+background:var(--panel);
+border-radius:10px;
 padding:10px;
 display:none;
 flex-direction:column;
-gap:6px;
-font-size:14px;
+gap:8px;
 }
 
-.menu button{
+.dropdown button{
 background:none;
 border:none;
-color:white;
+color:var(--text);
 text-align:left;
 cursor:pointer;
 }
@@ -104,67 +97,23 @@ cursor:pointer;
 flex:1;
 overflow-y:auto;
 padding:20px;
-display:flex;
-flex-direction:column;
-gap:12px;
 }
 
 .msg{
-max-width:70%;
-word-break:break-word;
+margin:10px 0;
+max-width:80%;
 }
 
 .msg.user{
 align-self:flex-end;
-background:#2C2C2E;
-padding:10px 14px;
-border-radius:18px;
+background:#333;
+padding:10px 15px;
+border-radius:20px;
+margin-left:auto;
 }
 
 .msg.bot{
 align-self:flex-start;
-}
-
-.input-wrap{
-padding:10px;
-}
-
-.input-box{
-position:relative;
-background:var(--panel);
-border-radius:999px;
-padding:12px 50px 12px 18px;
-}
-
-input{
-width:100%;
-border:none;
-background:transparent;
-color:white;
-font-size:16px;
-outline:none;
-}
-
-.send{
-position:absolute;
-right:8px;
-top:50%;
-transform:translateY(-50%);
-width:32px;
-height:32px;
-border-radius:50%;
-background:var(--accent);
-border:none;
-color:white;
-font-size:16px;
-cursor:pointer;
-}
-
-.footer{
-text-align:center;
-font-size:12px;
-color:rgba(142,142,147,.6);
-padding-bottom:6px;
 }
 
 .char{
@@ -178,197 +127,182 @@ transition:opacity .12s linear, filter .28s linear;
 opacity:1;
 filter:brightness(1);
 }
+
+.input-area{
+padding:10px 15px 20px;
+}
+
+.input-wrapper{
+background:var(--input);
+border-radius:50px;
+display:flex;
+align-items:center;
+padding:8px 12px;
+}
+
+input{
+flex:1;
+background:none;
+border:none;
+color:var(--text);
+font-size:16px;
+outline:none;
+}
+
+input::placeholder{
+color:var(--muted);
+}
+
+.send{
+width:32px;
+height:32px;
+background:var(--accent);
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+}
+
+.send svg{
+fill:#fff;
+width:16px;
+}
+
+.footer{
+text-align:center;
+font-size:12px;
+color:rgba(142,142,147,.6);
+margin-top:6px;
+}
 </style>
 </head>
 
 <body>
 
 <header>
-<div class="orbit-wrap">
+<div class="logo">
 Velaris
 <div class="orbit" id="orbit">
-<div class="planet" id="planet"></div>
+<div class="planet"></div>
 </div>
 </div>
-<div class="menu-btn" onclick="toggleMenu()">⋯</div>
-<div class="menu" id="menu">
-<button onclick="setTheme('black')">Theme: Black</button>
-<button onclick="setTheme('white')">Theme: White</button>
-<button onclick="setTheme('blue')">Theme: Blue</button>
-<hr>
-<button onclick="toggleOrbit()">Orbit: <span id="orbitState">OFF</span></button>
-<button onclick="toggleThink()">Think: <span id="thinkState">OFF</span></button>
-<button onclick="togglePlaceholder()">Placeholder: <span id="phState">OFF</span></button>
-</div>
+<div class="menu" onclick="toggleMenu()">⋮</div>
 </header>
+
+<div class="dropdown" id="dropdown">
+<button onclick="setTheme('dark')">Тёмная</button>
+<button onclick="setTheme('light')">Белая</button>
+<button onclick="setTheme('blue')">Синяя</button>
+<button onclick="toggleOrbit()">Orbit : <span id="orbitState">ON</span></button>
+<button onclick="toggleThink()">Think : <span id="thinkState">OFF</span></button>
+<button onclick="togglePlaceholder()">Placeholder : <span id="phState">OFF</span></button>
+</div>
 
 <div class="chat" id="chat"></div>
 
-<div class="input-wrap">
-<div class="input-box">
+<div class="input-area">
+<div class="input-wrapper">
 <input id="input" placeholder="What do you want to know?">
-<button class="send" onclick="send()">↑</button>
+<div class="send" onclick="sendMessage()">
+<svg viewBox="0 0 24 24">
+<path d="M12 2l6 6h-4v8h-4V8H6z"/>
+</svg>
 </div>
 </div>
-
-<div class="footer">Velaris 2.1</div>
+<div class="footer">Velaris AI 2.1 v2</div>
+</div>
 
 <script>
-const chat = document.getElementById('chat');
-const input = document.getElementById('input');
+const chat=document.getElementById("chat")
+const input=document.getElementById("input")
 
-let orbitOn=false;
-let thinkOn=false;
-let phOn=false;
+let thinkMode=false
+let orbitOn=true
+let placeholderOn=false
 
 const greetings=[
 "Кого я вижу!",
 "О, привет! А я как раз заказывал пиццу, тебе кусочек?",
 "Ну наконец-то! А то я уже заскучал.",
 "Привет! Как там жизнь молодая?",
-"Мир твоему дому!",
-"Доброго времени суток!",
-"Мое почтение.",
-"Приветствую!",
-"Салют!",
-"Йо!",
-"Привет-привет!"
-];
-
-function toggleMenu(){
-const m=document.getElementById('menu');
-m.style.display=m.style.display==='flex'?'none':'flex';
-}
-
-document.addEventListener('click',e=>{
-if(!e.target.closest('.menu')&&!e.target.closest('.menu-btn')){
-document.getElementById('menu').style.display='none';
-}
-});
-
-function toggleOrbit(){
-orbitOn=!orbitOn;
-document.getElementById('orbitState').textContent=orbitOn?'ON':'OFF';
-const planet=document.getElementById('planet');
-if(orbitOn){planet.parentElement.classList.add('spin');}
-else{planet.parentElement.classList.remove('spin');}
-}
-
-function toggleThink(){
-thinkOn=!thinkOn;
-document.getElementById('thinkState').textContent=thinkOn?'ON':'OFF';
-}
-
-function togglePlaceholder(){
-phOn=!phOn;
-document.getElementById('phState').textContent=phOn?'ON':'OFF';
-if(phOn) startPlaceholder();
-}
-
-function startPlaceholder(){
-const phrases=[
-"Velaris не спит",
-"Velaris крутой",
-"Спрашивай что угодно",
-"Velaris шарит 😎",
-"Попробуй /Bigresponse 🚀"
-];
-let i=0;
-function type(){
-if(!phOn)return;
-let text=phrases[i];
-let j=0;
-input.placeholder="";
-let typing=setInterval(()=>{
-if(j<text.length){
-input.placeholder+=text[j];
-j++;
-}else{
-clearInterval(typing);
-setTimeout(()=>{
-erase();
-},1500);
-}
-},60);
-
-function erase(){
-let er=setInterval(()=>{
-if(input.placeholder.length>0){
-input.placeholder=input.placeholder.slice(0,-1);
-}else{
-clearInterval(er);
-i=(i+1)%phrases.length;
-setTimeout(type,500);
-}
-},40);
-}
-}
-type();
-}
+"Мир твоему дому!"
+]
 
 function createMsg(role,text){
-const el=document.createElement('div');
-el.className='msg '+(role==='user'?'user':'bot');
+const el=document.createElement("div")
+el.className="msg "+role
 
-if(role==='user'){
-el.textContent=text;
+if(role==="user"){
+el.textContent=text
 }else{
-for(let ch of text){
-const span=document.createElement('span');
-span.className='char';
-span.textContent=ch;
-el.appendChild(span);
+for(let i=0;i<text.length;i++){
+const ch=document.createElement("span")
+ch.className="char"
+ch.textContent=text[i]
+el.appendChild(ch)
 }
-setTimeout(()=>reveal(el),50);
+reveal(el)
 }
-
-chat.appendChild(el);
-chat.scrollTop=chat.scrollHeight;
+chat.appendChild(el)
+chat.scrollTop=chat.scrollHeight
 }
 
 function reveal(el){
-const spans=el.querySelectorAll('.char');
-let i=0;
+const spans=el.querySelectorAll(".char")
+let i=0
 function step(){
-if(i>=spans.length)return;
-spans[i].classList.add('visible');
-i++;
-chat.scrollTop=chat.scrollHeight;
-setTimeout(step,18);
+if(i>=spans.length)return
+spans[i].classList.add("visible")
+i++
+chat.scrollTop=chat.scrollHeight
+setTimeout(step,18)
 }
-step();
-}
-
-function send(){
-const text=input.value.trim();
-if(!text)return;
-createMsg('user',text);
-input.value="";
-reply(text);
+step()
 }
 
-function reply(t){
-if(t.toLowerCase().includes("привет")){
-createMsg('bot',greetings[Math.floor(Math.random()*greetings.length)]);
-return;
+function sendMessage(){
+const text=input.value
+if(!text.trim())return
+createMsg("user",text)
+input.value=""
+handleResponse(text)
 }
 
-if(t.startsWith("/Bigresponse")){
-createMsg('bot',"Квантовый компьютер — это вычислительная система...");
-return;
+function handleResponse(text){
+if(text.toLowerCase().includes("привет")){
+createMsg("bot",greetings[Math.floor(Math.random()*greetings.length)])
+return
 }
 
-if(!isNaN(t)){
-createMsg('bot',"Результат: "+eval(t));
-return;
+if(text==="/bigresponse"){
+createMsg("bot","Квантовый компьютер — это вычислительная система, основанная на принципах квантовой механики...")
+return
 }
 
-createMsg('bot',"Интересный вопрос. Дай секунду подумать...");
+createMsg("bot","Интересный вопрос. Думаю над ответом 😄")
 }
 
-input.addEventListener("keydown",e=>{
-if(e.key==="Enter") send();
-});
+function toggleMenu(){
+const d=document.getElementById("dropdown")
+d.style.display=d.style.display==="flex"?"none":"flex"
+}
+
+function toggleOrbit(){
+orbitOn=!orbitOn
+document.getElementById("orbit").classList.toggle("off")
+document.getElementById("orbitState").textContent=orbitOn?"ON":"OFF"
+}
+
+function toggleThink(){
+thinkMode=!thinkMode
+document.getElementById("thinkState").textContent=thinkMode?"ON":"OFF"
+}
+
+function togglePlaceholder(){
+placeholderOn=!placeholderOn
+document.getElementById("phState").textContent=placeholderOn?"ON":"OFF"
+}
 </script>
 
 </body>
